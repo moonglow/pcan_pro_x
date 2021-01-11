@@ -227,7 +227,7 @@ struct ucan_rx_msg {
   uint8_t  client;
   uint16_t  flags;
   uint32_t  can_id;
-  uint8_t  d[0];
+  uint8_t  d[];
 }__attribute__((packed));
 
 /* uCAN error types */
@@ -294,7 +294,7 @@ struct ucan_tx_msg {
   uint8_t  client;
   uint16_t  flags;
   uint32_t  can_id;
-  uint8_t  d[0];
+  uint8_t  d[];
 }__attribute__((packed));
 
 /* uCAN Tx Pause record */
