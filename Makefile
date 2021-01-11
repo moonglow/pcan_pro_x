@@ -10,35 +10,17 @@
 #   2015-07-22 - first version
 # ------------------------------------------------
 
-
-######################################
-# building variables
-######################################
-# debug build?
-DEBUG = 0
-CANFD = 1
-# optimization
-ifeq ($(DEBUG), 1)
-OPT = -Og
-else
-OPT = -Os
-endif
-
 ######################################
 # target
 ######################################
-FW_BD = $(shell date +'%Y_%m_%d' )
-ifeq ($(CANFD), 1)
-TARGET = fw_pcan_pro_fd_$(FW_BD)
-else
-TARGET = fw_pcan_pro_$(FW_BD)
-endif
+FW_VER = $(shell date +'%Y_%m_%d' )
+TARGET = pcan_$(BOARD)_hw_$(FW_VER)
 
 #######################################
 # paths
 #######################################
 # Build path
-BUILD_DIR = build
+BUILD_DIR = build-$(BOARD)
 
 ######################################
 # source
@@ -177,8 +159,13 @@ LIBDIR =
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
-all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
+all: pro pro_fd
 
+pro:
+	$(MAKE) BOARD=pro CANFD=0 DEBUG=0 OPT=-Os elf hex bin
+
+pro_fd:
+	$(MAKE) BOARD=pro_fd CANFD=1 DEBUG=0 OPT=-Os elf hex bin
 
 #######################################
 # build the application
@@ -189,6 +176,10 @@ vpath %.c $(sort $(dir $(C_SOURCES)))
 # list of ASM program objects
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
+
+ELF_TARGET = $(BUILD_DIR)/$(TARGET).elf
+BIN_TARGET = $(BUILD_DIR)/$(TARGET).bin
+HEX_TARGET = $(BUILD_DIR)/$(TARGET).hex
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
@@ -209,12 +200,19 @@ $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 $(BUILD_DIR):
 	mkdir $@		
 
+bin: $(BIN_TARGET)
+
+elf: $(ELF_TARGET)
+
+hex: $(HEX_TARGET)
+
+
 #######################################
 # clean up
 #######################################
 clean:
-	-rm -fR $(BUILD_DIR)
-  
+	-rm -fR $(BUILD_DIR)*
+
 #######################################
 # dependencies
 #######################################
