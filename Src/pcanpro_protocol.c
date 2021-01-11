@@ -662,7 +662,7 @@ int pcan_protocol_set_baudrate( uint8_t channel, uint32_t  ccbt )
 
   if( bitrate != pcan_bitrate )
   {
-    pcan_can_set_bitrate( channel, bitrate );
+    pcan_can_set_bitrate( channel, bitrate, 0 );
   }
   else
   {

@@ -52,6 +52,17 @@ can_dev_array[CAN_BUS_TOTAL] =
 
 #define CAN_WITHOUT_ISR 1
 
+uint32_t pcan_can_msg_time( const struct t_can_msg *pmsg, uint32_t nt, uint32_t dt )
+{
+  const uint32_t data_bits = pmsg->size<<3;
+  const uint32_t control_bits = ( pmsg->flags & MSG_FLAG_EXT ) ? 67:47;
+ 
+  if( pmsg->flags & MSG_FLAG_BRS )
+    return (control_bits*nt) + (data_bits*dt);
+  else
+    return (control_bits+data_bits)*nt;
+}
+
 int pcan_can_set_filter_mask( int bus, int num, int format, uint32_t id, uint32_t mask )
 {
   CAN_FilterTypeDef filter = { 0 };
@@ -237,103 +248,71 @@ void pcan_can_install_err_callback( int bus, void (*cb)( int , uint32_t ) )
 }
 
 /* all internal CANs on APB1 */
-int pcan_can_init( int bus )
+static int _get_precalculated_bitrate( uint32_t bitrate, uint32_t *brp, uint32_t *tseg1, uint32_t *tseg2, uint32_t *sjw )
 {
-  CAN_HandleTypeDef *p_can = can_dev_array[bus].dev;
-  
-  HAL_CAN_DeInit( p_can );
-
-  p_can->Init.Mode = CAN_MODE_NORMAL;
-  p_can->Init.SyncJumpWidth = CAN_SJW_1TQ;
-  p_can->Init.TimeSeg1 = CAN_BS1_13TQ;
-  p_can->Init.TimeSeg2 = CAN_BS2_2TQ;
-  p_can->Init.Prescaler = 3;
-  p_can->Init.TimeTriggeredMode = DISABLE;
-  p_can->Init.AutoBusOff = ENABLE;
-  p_can->Init.AutoWakeUp = DISABLE;
-  p_can->Init.AutoRetransmission = ENABLE;
-  p_can->Init.ReceiveFifoLocked = DISABLE;
-  p_can->Init.TransmitFifoPriority = DISABLE;
-  
-  if( HAL_CAN_Init( p_can ) != HAL_OK )
-  {
-    assert( 0 );
-  }
-  
-  pcan_can_set_filter_mask( bus, 0, 0, 0, 0 );
-  pcan_can_set_bus_active( bus, 1 );
-  
-  if( HAL_CAN_ActivateNotification( p_can, INTERNAL_CAN_IT_FLAGS ) != HAL_OK )
-  {
-    assert( 0 );
-  }
-  
-  return 0;
-}
-
-static void _set_default_bitrate_settings( int bus, uint32_t bitrate )
-{
-  CAN_HandleTypeDef *p_can = can_dev_array[bus].dev;
+  *sjw = CAN_SJW_1TQ;
 
   switch( bitrate )
   {
     case 1000000u:
-      p_can->Init.Prescaler = 3;
-      p_can->Init.TimeSeg1 = CAN_BS1_6TQ;
-      p_can->Init.TimeSeg2 = CAN_BS2_1TQ;
+      *brp = 3;
+      *tseg1 = CAN_BS1_6TQ;
+      *tseg2 = CAN_BS2_1TQ;
     break;
     case 800000u:
-      p_can->Init.Prescaler = 2;
-      p_can->Init.TimeSeg1 = CAN_BS1_12TQ;
-      p_can->Init.TimeSeg2 = CAN_BS2_2TQ;
+      *brp = 2;
+      *tseg1 = CAN_BS1_12TQ;
+      *tseg2 = CAN_BS2_2TQ;
     break;
     default:
     case 500000u:
-      p_can->Init.Prescaler = 3;
-      p_can->Init.TimeSeg1 = CAN_BS1_13TQ;
-      p_can->Init.TimeSeg2 = CAN_BS2_2TQ;
+      *brp = 3;
+      *tseg1 = CAN_BS1_13TQ;
+      *tseg2 = CAN_BS2_2TQ;
     break;
     case 250000u:
-      p_can->Init.Prescaler = 6;
-      p_can->Init.TimeSeg1 = CAN_BS1_13TQ;
-      p_can->Init.TimeSeg2 = CAN_BS2_2TQ;
+      *brp = 6;
+      *tseg1 = CAN_BS1_13TQ;
+      *tseg2 = CAN_BS2_2TQ;
     break;
     case 125000u:
-      p_can->Init.Prescaler = 12;
-      p_can->Init.TimeSeg1 = CAN_BS1_13TQ;
-      p_can->Init.TimeSeg2 = CAN_BS2_2TQ;
+      *brp = 12;
+      *tseg1 = CAN_BS1_13TQ;
+      *tseg2 = CAN_BS2_2TQ;
     break;
     case 100000u:
-      p_can->Init.Prescaler = 15;
-      p_can->Init.TimeSeg1 = CAN_BS1_13TQ;
-      p_can->Init.TimeSeg2 = CAN_BS2_2TQ;
+      *brp = 15;
+      *tseg1 = CAN_BS1_13TQ;
+      *tseg2 = CAN_BS2_2TQ;
     break;
     case 50000u:
-      p_can->Init.Prescaler = 30;
-      p_can->Init.TimeSeg1 = CAN_BS1_13TQ;
-      p_can->Init.TimeSeg2 = CAN_BS2_2TQ;
+      *brp = 30;
+      *tseg1 = CAN_BS1_13TQ;
+      *tseg2 = CAN_BS2_2TQ;
     break;
     case 20000u:
-      p_can->Init.Prescaler = 75;
-      p_can->Init.TimeSeg1 = CAN_BS1_13TQ;
-      p_can->Init.TimeSeg2 = CAN_BS2_2TQ;
+      *brp = 75;
+      *tseg1 = CAN_BS1_13TQ;
+      *tseg2 = CAN_BS2_2TQ;
     break;
     case 10000u:
-      p_can->Init.Prescaler = 150;
-      p_can->Init.TimeSeg1 = CAN_BS1_13TQ;
-      p_can->Init.TimeSeg2 = CAN_BS2_2TQ;
+      *brp = 150;
+      *tseg1 = CAN_BS1_13TQ;
+      *tseg2 = CAN_BS2_2TQ;
     break;
   }
+
+  return 0;
 }
 
 int pcan_can_init_ex( int bus, uint32_t bitrate )
 {
   CAN_HandleTypeDef *p_can = can_dev_array[bus].dev;
+  uint32_t brp;
+  uint32_t tseg1, tseg2, sjw;
 
   p_can->Init.Mode = CAN_MODE_NORMAL;//CAN_MODE_NORMAL;// CAN_MODE_LOOPBACK;
-  
-  p_can->Init.SyncJumpWidth = CAN_SJW_1TQ;
-  
+    
   p_can->Init.TimeTriggeredMode = DISABLE;
   p_can->Init.AutoBusOff = ENABLE;
   p_can->Init.AutoWakeUp = ENABLE;
@@ -343,7 +322,12 @@ int pcan_can_init_ex( int bus, uint32_t bitrate )
   p_can->Init.TransmitFifoPriority = DISABLE;
   
   /* APB1 bus ref clock = 24MHz, best sp is 87.5% */
-  _set_default_bitrate_settings( bus, bitrate );
+  _get_precalculated_bitrate( bitrate, &brp, &tseg1, &tseg2, &sjw );
+
+  p_can->Init.SyncJumpWidth = sjw;
+  p_can->Init.Prescaler = brp;
+  p_can->Init.TimeSeg1 = tseg1;
+  p_can->Init.TimeSeg2 = tseg2;
   
   //(void)HAL_CAN_AbortTxRequest( p_can, CAN_TX_MAILBOX0 | CAN_TX_MAILBOX1 | CAN_TX_MAILBOX2 );
   //(void)HAL_CAN_Stop( p_can );
@@ -372,6 +356,13 @@ void pcan_can_set_silent( int bus, uint8_t silent_mode )
   }
 }
 
+/* bxCAN does not support FDCAN ISO mode switch */
+void pcan_can_set_iso_mode( int bus, uint8_t iso_mode )
+{
+  (void)bus;
+  (void)iso_mode;
+}
+
 void pcan_can_set_loopback( int bus, uint8_t loopback )
 {
   CAN_HandleTypeDef *p_can = can_dev_array[bus].dev;
@@ -397,14 +388,26 @@ void pcan_can_set_bus_active( int bus, uint16_t mode )
   }
 }
 
-void pcan_can_set_bitrate( int bus, uint32_t bitrate )
+/* set predefined best values */
+void pcan_can_set_bitrate( int bus, uint32_t bitrate, int is_data_bitrate )
 {
   CAN_HandleTypeDef *p_can = can_dev_array[bus].dev;
-  
-  p_can->Init.SyncJumpWidth = CAN_SJW_1TQ;
-  
-  /* APB1 bus ref clock = 24MHz, best sp is 87.5% */
-  _set_default_bitrate_settings( bus, bitrate );
+  uint32_t brp;
+  uint32_t tseg1, tseg2, sjw;
+
+  _get_precalculated_bitrate( bitrate, &brp, &tseg1, &tseg2, &sjw );
+
+  if( is_data_bitrate )
+  {
+    return;
+  }
+  else
+  {
+    p_can->Init.Prescaler = brp;
+    p_can->Init.SyncJumpWidth = sjw;
+    p_can->Init.TimeSeg1 = tseg1;
+    p_can->Init.TimeSeg2 = tseg2;
+  }
   
   if( HAL_CAN_Init( p_can ) != HAL_OK )
   {
