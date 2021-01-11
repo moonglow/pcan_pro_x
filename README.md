@@ -27,6 +27,9 @@ Limits:
 Toolchain:
 - GNU Arm Embedded Toolchain
 
+Build:
+- PCAN PRO firmware `make pro`
+- PCAN PRO FD firmware `make pro_fd`
 
 License
 ----
