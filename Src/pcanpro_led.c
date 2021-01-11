@@ -37,11 +37,11 @@ void pcan_led_set_mode( int led, int mode, uint32_t arg )
 {
   assert( led < LED_TOTAL );
 
-  if( led_mode_array[led].mode == mode )
-    return;
-
   led_mode_array[led].mode = mode;
-  led_mode_array[led].timestamp = pcan_timestamp_millis();
+  if( !led_mode_array[led].timestamp )
+  {
+    led_mode_array[led].timestamp = pcan_timestamp_millis();
+  }
   led_mode_array[led].delay = 0;
 
   /* set guard time */
@@ -51,7 +51,7 @@ void pcan_led_set_mode( int led, int mode, uint32_t arg )
     if( arg != 0xFFFFFFFF )
     {
       /* update to absolute */
-      arg += led_mode_array[led].timestamp;
+      arg = pcan_timestamp_millis() + arg;
     }
   }
 
