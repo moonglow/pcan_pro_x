@@ -20,12 +20,15 @@ Features:
 
 
 Limits:
-- PRO FD firmware does not support FD frames cause bxCAN not supports it
+- PRO FD firmware does not support FD frames cause bxCAN not supports it, but it will works with classic CAN
 - Some protocol specific messages not implemented yet
 - Be sure to use **PB14/PB15** pins for USB
 
 Toolchain:
 - GNU Arm Embedded Toolchain
+
+Tips:
+- PRO FD firmware has better performance on windows ( due internal PEAK driver implementation )
 
 Build:
 - PCAN PRO firmware `make pro`
