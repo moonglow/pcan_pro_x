@@ -33,6 +33,7 @@ Tips:
 Build:
 - PCAN PRO firmware `make pro`
 - PCAN PRO FD firmware `make pro_fd`
+- PCAN FD firmware `make fd`
 
 License
 ----
