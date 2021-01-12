@@ -18,12 +18,14 @@
 #define PCAN_USB_EP_MSGIN_CH2     0x83
 
 
-#if PCAN_FD
+#if ( PCAN_PRO_FD ) || ( PCAN_FD )
 #define PCAN_DATA_PACKET_SIZE (256)
 #define PCAN_CMD_PACKET_SIZE  (128)
-#else
+#elif ( PCAN_PRO )
 #define PCAN_DATA_PACKET_SIZE (64)
 #define PCAN_CMD_PACKET_SIZE  (512)
+#else
+#error Oops
 #endif
 
 struct t_class_data

@@ -58,12 +58,7 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
 Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c \
 Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c \
 Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c \
-
-ifeq ($(CANFD), 1)
-C_SOURCES += Src/pcanpro_fd_protocol.c
-else
-C_SOURCES += Src/pcanpro_protocol.c
-endif
+$(PROTO)
 
 # ASM sources
 ASM_SOURCES =  \
@@ -113,9 +108,6 @@ AS_DEFS =
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
 -DSTM32F407xx
-ifeq ($(CANFD), 1)
-C_DEFS += -DPCAN_FD=1
-endif
 
 
 # AS includes
@@ -136,7 +128,7 @@ C_INCLUDES =  \
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -pedantic -fdata-sections -ffunction-sections
 
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -std=c11 -Wall -pedantic -fdata-sections -ffunction-sections
+CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -std=c11 -Wall -pedantic -fdata-sections -ffunction-sections $(BOARD_FLAGS)
 
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2
@@ -159,13 +151,17 @@ LIBDIR =
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
-all: pro pro_fd
+all: pro pro_fd fd
 
 pro:
-	$(MAKE) BOARD=pro CANFD=0 DEBUG=0 OPT=-Os elf hex bin
+	$(MAKE) BOARD=pro DEBUG=0 OPT=-Os PROTO=Src/pcanpro_protocol.c BOARD_FLAGS='-DPCAN_PRO=1 -DINCLUDE_LIN_INTERFACE=1' elf hex bin
 
 pro_fd:
-	$(MAKE) BOARD=pro_fd CANFD=1 DEBUG=0 OPT=-Os elf hex bin
+	$(MAKE) BOARD=pro_fd DEBUG=0 OPT=-Os PROTO=Src/pcanpro_fd_protocol.c BOARD_FLAGS='-DPCAN_PRO_FD=1 -DINCLUDE_LIN_INTERFACE=1' elf hex bin
+
+fd:
+	$(MAKE) BOARD=fd DEBUG=0 OPT=-Os PROTO=Src/pcanpro_fd_protocol.c BOARD_FLAGS='-DPCAN_FD=1 -DINCLUDE_LIN_INTERFACE=0' elf hex bin
+
 
 #######################################
 # build the application
@@ -212,6 +208,9 @@ hex: $(HEX_TARGET)
 #######################################
 clean:
 	-rm -fR $(BUILD_DIR)*
+
+clean_obj:
+	-rm -f $(BUILD_DIR)*/*.o $(BUILD_DIR)*/*.d $(BUILD_DIR)*/*.lst
 
 #######################################
 # dependencies

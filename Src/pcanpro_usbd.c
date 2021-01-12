@@ -5,7 +5,6 @@
 #include "usbd_helper.h"
 #include "pcanpro_protocol.h"
 #include "pcanpro_usbd.h"
-#define INCLUDE_LIN_INTERFACE (1)
 
 static struct t_class_data pcanpro_data = { 0 };
 
@@ -17,8 +16,10 @@ struct t_pcanpro_description
   USB_ENDPOINT_DESCRIPTOR      ep2_i0;
   USB_ENDPOINT_DESCRIPTOR      ep3_i0;
   USB_ENDPOINT_DESCRIPTOR      ep4_i0;
+#if ( PCAN_PRO ) || ( PCAN_PRO_FD )
   USB_ENDPOINT_DESCRIPTOR      ep5_i0;
   USB_ENDPOINT_DESCRIPTOR      ep6_i0;
+#endif
 #if INCLUDE_LIN_INTERFACE
   USB_INTERFACE_DESCRIPTOR     if1;
   USB_ENDPOINT_DESCRIPTOR      ep1_i1;
@@ -74,7 +75,11 @@ __ALIGN_BEGIN  static struct t_pcanpro_description pcanpro_dev __ALIGN_END =
     .bDescriptorType      = USB_INTERFACE_DESCRIPTOR_TYPE,
     .bInterfaceNumber     = 0,
     .bAlternateSetting    = 0,
+#if ( PCAN_PRO ) || ( PCAN_PRO_FD )
     .bNumEndpoints        = 6,
+#else
+    .bNumEndpoints        = 4,
+#endif
     .bInterfaceClass      = 0,
     .bInterfaceSubClass   = 0,
     .bInterfaceProtocol   = 0,
@@ -116,6 +121,7 @@ __ALIGN_BEGIN  static struct t_pcanpro_description pcanpro_dev __ALIGN_END =
     .wMaxPacketSize       = 64,/* FS: 64, HS: 512 */
     .bInterval            = 0,
   },
+#if ( PCAN_PRO ) || ( PCAN_PRO_FD )
   .ep5_i0 = 
   {
     .bLength              = sizeof( USB_ENDPOINT_DESCRIPTOR ),
@@ -134,6 +140,7 @@ __ALIGN_BEGIN  static struct t_pcanpro_description pcanpro_dev __ALIGN_END =
     .wMaxPacketSize       = 64,/* FS: 64, HS: 512 */
     .bInterval            = 0,
   },
+#endif
 #if INCLUDE_LIN_INTERFACE
   /* LIN INTERFACE */
   .if1 =
@@ -396,12 +403,15 @@ static uint8_t *device_get_user_string( USBD_HandleTypeDef *pdev, uint8_t index,
   switch( index )
   {
     case 6:
-#if PCAN_FD
+#if PCAN_PRO_FD
       USBD_GetString((uint8_t *)"PCAN-USB Pro FD LIN", USBD_StrDesc, length );
-#else
-      USBD_GetString((uint8_t *)"PCAN-USB-PRO LIN Device", USBD_StrDesc, length );
-#endif
       break;
+#elif PCAN_PRO
+      USBD_GetString((uint8_t *)"PCAN-USB-PRO LIN Device", USBD_StrDesc, length );
+      break;
+#else
+      /* fallthrough */
+#endif
     default:
       USBD_GetString((uint8_t *)"UNHANDLED", USBD_StrDesc, length );
       break;

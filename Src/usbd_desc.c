@@ -6,24 +6,25 @@
 #define USBD_VID                        0x0c72
 #define USBD_LANGID_STRING              1033
 #define USBD_MANUFACTURER_STRING        "PEAK-System Technik GmbH"
-#if  PCAN_FD
+#if  PCAN_PRO_FD
 #define USBD_PID_HS                     0x0011
-#else
-#define USBD_PID_HS                     0x000d
-#endif
-#if PCAN_FD
 #define USBD_PRODUCT_STRING_HS          "PCAN-USB Pro FD"
-#else
+#define USBD_INTERFACE_CAN_STRING_HS    "PCAN-USB Pro FD CAN"
+#define USBD_INTERFACE_LIN_STRING_HS    "PCAN-USB Pro FD LIN"
+#elif PCAN_FD
+#define USBD_PID_HS                     0x0012
+#define USBD_PRODUCT_STRING_HS          "PCAN-USB FD"
+#define USBD_INTERFACE_CAN_STRING_HS    "PCAN-USB FD CAN"
+#define USBD_INTERFACE_LIN_STRING_HS    "PCAN-USB FD LIN"
+#elif PCAN_PRO
+#define USBD_PID_HS                     0x000d
 #define USBD_PRODUCT_STRING_HS          "PCAN-USB-PRO"
+#define USBD_INTERFACE_CAN_STRING_HS    "PCAN-USB-PRO CAN Device"
+#define USBD_INTERFACE_LIN_STRING_HS    "PCAN-USB-PRO LIN Device"
+#else
+#error Oops
 #endif
 #define USBD_CONFIGURATION_STRING_HS    "Config00"
-#if PCAN_FD
-  #define USBD_INTERFACE_CAN_STRING_HS    "PCAN-USB Pro FD CAN"
-  #define USBD_INTERFACE_LIN_STRING_HS    "PCAN-USB Pro FD LIN"
-#else
-  #define USBD_INTERFACE_CAN_STRING_HS    "PCAN-USB-PRO CAN Device"
-  #define USBD_INTERFACE_LIN_STRING_HS    "PCAN-USB-PRO LIN Device"
-#endif
 
 
 #define USB_SIZ_BOS_DESC                0x0C
