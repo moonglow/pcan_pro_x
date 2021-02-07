@@ -266,10 +266,12 @@ static uint8_t device_deinit( USBD_HandleTypeDef *pdev, uint8_t cfgidx )
   }
   
   pdev->pClassData = (void*)0;
+#if 0
   PCD_HandleTypeDef *hpcd = (PCD_HandleTypeDef*) pdev->pData;
   USB_DevDisconnect( hpcd->Instance );
   HAL_Delay( 250 );
   USB_DevConnect( hpcd->Instance );
+#endif
   return USBD_OK;
 }
 
