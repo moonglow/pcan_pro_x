@@ -18,7 +18,7 @@
 #define PCAN_USB_EP_MSGIN_CH2     0x83
 
 
-#if ( PCAN_PRO_FD ) || ( PCAN_FD )
+#if ( PCAN_PRO_FD ) || ( PCAN_FD ) || ( PCAN_X6)
 #define PCAN_DATA_PACKET_SIZE (256)
 #define PCAN_CMD_PACKET_SIZE  (128)
 #elif ( PCAN_PRO )

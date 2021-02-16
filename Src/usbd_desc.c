@@ -21,6 +21,11 @@
 #define USBD_PRODUCT_STRING_HS          "PCAN-USB-PRO"
 #define USBD_INTERFACE_CAN_STRING_HS    "PCAN-USB-PRO CAN Device"
 #define USBD_INTERFACE_LIN_STRING_HS    "PCAN-USB-PRO LIN Device"
+#elif PCAN_X6
+#define USBD_PID_HS                     0x0014
+#define USBD_PRODUCT_STRING_HS          "PCAN-USB X6"
+#define USBD_INTERFACE_CAN_STRING_HS    "PCAN-USB X6 CAN Device"
+#define USBD_INTERFACE_LIN_STRING_HS    "PCAN-USB X6 LIN Device"
 #else
 #error Oops
 #endif

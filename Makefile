@@ -162,6 +162,9 @@ pro_fd:
 fd:
 	$(MAKE) BOARD=fd DEBUG=0 OPT=-Os PROTO=Src/pcanpro_fd_protocol.c BOARD_FLAGS='-DPCAN_FD=1 -DINCLUDE_LIN_INTERFACE=0' elf hex bin
 
+pcan_x6:
+	$(MAKE) BOARD=pcan_x6 DEBUG=0 OPT=-Os PROTO=Src/pcanpro_fd_protocol.c BOARD_FLAGS='-DPCAN_X6=1 -DINCLUDE_LIN_INTERFACE=0' elf hex bin
+
 
 #######################################
 # build the application

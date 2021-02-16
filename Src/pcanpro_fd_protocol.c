@@ -135,14 +135,28 @@ uint8_t pcan_protocol_device_setup( USBD_HandleTypeDef *pdev, USBD_SetupReqTyped
             .size_of = sizeof( struct pcan_usbfd_fw_info ),
             .type = 2,
             .hw_type = 1,
+#if ( PCAN_X6 == 1 )
+            .bl_version = { 1, 1, 0 },
+            .hw_version = 3,
+#else
             .bl_version = { 2, 1, 0 }, /* bootloader v > 2 support massstorage mode */
             .hw_version = 2,
+#endif
             .fw_version = { 3, 2, 0 },
             .dev_id[0] = 0xFFFFFFFF,
             .dev_id[1] = 0xFFFFFFFF,
             .ser_no = 0xFFFFFFFF,
             .flags = 0x00000000,
-            .unk = { 0x01, 0x81, 0x02, 0x03, 0x82, 0x00, 0x00, 0x00 }
+            .unk = { 
+              0x01, /* cmd_out */
+              0x81, /* cmd_in */
+              0x02, /* write */
+              0x03, /* write */
+              0x82, /* read */
+              0x00,
+              0x00,
+              0x00 
+              }
           };
           /* windows/linux has different struct size */
           fwi.size_of = req->wLength;

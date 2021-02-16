@@ -16,7 +16,7 @@ struct t_pcanpro_description
   USB_ENDPOINT_DESCRIPTOR      ep2_i0;
   USB_ENDPOINT_DESCRIPTOR      ep3_i0;
   USB_ENDPOINT_DESCRIPTOR      ep4_i0;
-#if ( PCAN_PRO ) || ( PCAN_PRO_FD )
+#if ( PCAN_PRO ) || ( PCAN_PRO_FD ) || ( PCAN_X6)
   USB_ENDPOINT_DESCRIPTOR      ep5_i0;
   USB_ENDPOINT_DESCRIPTOR      ep6_i0;
 #endif
@@ -75,7 +75,7 @@ __ALIGN_BEGIN  static struct t_pcanpro_description pcanpro_dev __ALIGN_END =
     .bDescriptorType      = USB_INTERFACE_DESCRIPTOR_TYPE,
     .bInterfaceNumber     = 0,
     .bAlternateSetting    = 0,
-#if ( PCAN_PRO ) || ( PCAN_PRO_FD )
+#if ( PCAN_PRO ) || ( PCAN_PRO_FD ) || ( PCAN_X6)
     .bNumEndpoints        = 6,
 #else
     .bNumEndpoints        = 4,
@@ -121,7 +121,7 @@ __ALIGN_BEGIN  static struct t_pcanpro_description pcanpro_dev __ALIGN_END =
     .wMaxPacketSize       = 64,/* FS: 64, HS: 512 */
     .bInterval            = 0,
   },
-#if ( PCAN_PRO ) || ( PCAN_PRO_FD )
+#if ( PCAN_PRO ) || ( PCAN_PRO_FD )  || ( PCAN_X6)
   .ep5_i0 = 
   {
     .bLength              = sizeof( USB_ENDPOINT_DESCRIPTOR ),
