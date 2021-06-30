@@ -203,7 +203,7 @@ void pcan_ep0_receive( void )
     pcan_flush_ep( PCAN_USB_EP_MSGIN_CH1 );
     pcan_flush_ep( PCAN_USB_EP_CMDIN );
     pcan_device.can_drv_loaded = drv_load_packet[1];
-    pcan_led_set_mode( LED_STAT, LED_MODE_ON, 0 );
+    pcan_led_set_mode( LED_STAT, LED_MODE_BLINK_SLOW, 0xFFFFFFFF );
   }
   else
     pcan_device.lin_drv_loaded = drv_load_packet[1];

@@ -243,6 +243,7 @@ void pcan_ep0_receive( void )
   {
     pcan_flush_ep( PCAN_USB_EP_MSGIN_CH1 );
     pcan_flush_ep( PCAN_USB_EP_CMDIN );
+    pcan_led_set_mode( LED_STAT, LED_MODE_BLINK_SLOW, 0xFFFFFFFF );
   }
   else
   {
