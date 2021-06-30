@@ -334,13 +334,19 @@ int pcan_can_init_ex( int bus, uint32_t bitrate )
   //(void)HAL_CAN_DeInit( p_can );
   
   if( HAL_CAN_Init( p_can ) != HAL_OK )
-    return -1;
+  {
+    assert(0);
+  }
   
   if( HAL_CAN_ActivateNotification( p_can, INTERNAL_CAN_IT_FLAGS ) != HAL_OK )
-    return -1;
+  {
+    assert(0);
+  }
   
   if( HAL_CAN_Start( p_can ) != HAL_OK )
-    return -1;
+  {
+    assert(0);
+  }
   
   return 0;
 }
