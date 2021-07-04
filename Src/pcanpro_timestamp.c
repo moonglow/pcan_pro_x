@@ -33,6 +33,10 @@ void pcan_timestamp_init( void )
       assert( 0 );
     break;
   }
+
+  //HAL_GetTick must not return 0 to use LED events in early stage.
+  //Let's increment the value here by one.
+  HAL_IncTick();
 }
 
 uint32_t pcan_timestamp_millis( void )

@@ -76,6 +76,7 @@ int main(void)
   pcan_timestamp_init();
   
   pcan_led_init();
+  pcan_led_set_mode( LED_STAT, LED_MODE_BLINK_FAST, 0xFFFFFFFF );
   pcan_protocol_init();
   pcan_usb_device_init();
   
