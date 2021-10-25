@@ -335,7 +335,7 @@ int pcan_protocol_tx_frame( struct ucan_tx_msg *pmsg )
     msg.flags |= MSG_FLAG_RTR;
   if( pmsg->flags & UCAN_MSG_EXT_ID )
     msg.flags |= MSG_FLAG_EXT;
-  if( pmsg->flags & (UCAN_MSG_API_SRR|UCAN_MSG_HW_SRR) )
+  if( pmsg->flags & (/*UCAN_MSG_API_SRR|*/UCAN_MSG_HW_SRR) )
   {
     msg.flags |= MSG_FLAG_ECHO;
     msg.dummy = pmsg->client;
