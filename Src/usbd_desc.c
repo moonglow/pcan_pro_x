@@ -38,7 +38,7 @@
   #pragma data_alignment=4
 #endif
 /** USB standard device descriptor. */
-__ALIGN_BEGIN uint8_t USBD_HS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
+__ALIGN_BEGIN uint8_t USBD_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
 {
   0x12,                       /*bLength */
   USB_DESC_TYPE_DEVICE,       /*bDescriptorType*/
@@ -71,7 +71,7 @@ __ALIGN_BEGIN uint8_t USBD_HS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
 #if defined ( __ICCARM__ )
   #pragma data_alignment=4
 #endif
-__ALIGN_BEGIN uint8_t USBD_HS_BOSDesc[USB_SIZ_BOS_DESC] __ALIGN_END =
+__ALIGN_BEGIN uint8_t USBD_BOSDesc[USB_SIZ_BOS_DESC] __ALIGN_END =
 {
   0x5,
   USB_DESC_TYPE_BOS,
@@ -108,30 +108,22 @@ __ALIGN_BEGIN uint8_t USBD_LangIDDesc[USB_LEN_LANGID_STR_DESC] __ALIGN_END =
 /* Internal string descriptor. */
 __ALIGN_BEGIN uint8_t USBD_StrDesc[USBD_MAX_STR_DESC_SIZ] __ALIGN_END;
 
-#if defined ( __ICCARM__ ) /*!< IAR Compiler */
-  #pragma data_alignment=4   
-#endif
-__ALIGN_BEGIN uint8_t USBD_StringSerial[USB_SIZ_STRING_SERIAL] __ALIGN_END = {
-  USB_SIZ_STRING_SERIAL,
-  USB_DESC_TYPE_STRING,
-};
 
-
-uint8_t * USBD_HS_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t * USBD_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
   UNUSED(speed);
-  *length = sizeof(USBD_HS_DeviceDesc);
-  return USBD_HS_DeviceDesc;
+  *length = sizeof(USBD_DeviceDesc);
+  return USBD_DeviceDesc;
 }
 
-uint8_t * USBD_HS_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t * USBD_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
   UNUSED(speed);
   *length = sizeof(USBD_LangIDDesc);
   return USBD_LangIDDesc;
 }
 
-uint8_t * USBD_HS_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t * USBD_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
   if(speed == 0)
   {
@@ -144,14 +136,14 @@ uint8_t * USBD_HS_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length
   return USBD_StrDesc;
 }
 
-uint8_t * USBD_HS_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t * USBD_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
   UNUSED(speed);
   USBD_GetString((uint8_t *)USBD_MANUFACTURER_STRING, USBD_StrDesc, length);
   return USBD_StrDesc;
 }
 
-uint8_t * USBD_HS_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t * USBD_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
   if(speed == USBD_SPEED_HIGH)
   {
@@ -164,7 +156,7 @@ uint8_t * USBD_HS_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   return USBD_StrDesc;
 }
 
-uint8_t * USBD_HS_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t * USBD_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
   if( speed == 0 )
   {
@@ -178,7 +170,7 @@ uint8_t * USBD_HS_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *leng
 }
 
 #if (USBD_CLASS_USER_STRING_DESC == 1)
-static uint8_t *USBD_HS_UserStrDescriptor( USBD_HandleTypeDef *pdev, uint8_t index, uint16_t *length )
+static uint8_t *USBD_UserStrDescriptor( USBD_HandleTypeDef *pdev, uint8_t index, uint16_t *length )
 {
   __ALIGN_BEGIN static uint8_t USBD_StrDesc[64] __ALIGN_END;
 
@@ -198,27 +190,27 @@ static uint8_t *USBD_HS_UserStrDescriptor( USBD_HandleTypeDef *pdev, uint8_t ind
 #endif
 
 #if (USBD_LPM_ENABLED == 1)
-static uint8_t * USBD_HS_USR_BOSDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+static uint8_t * USBD_USR_BOSDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
   UNUSED(speed);
-  *length = sizeof(USBD_HS_BOSDesc);
-  return (uint8_t*)USBD_HS_BOSDesc;
+  *length = sizeof(USBD_BOSDesc);
+  return (uint8_t*)USBD_BOSDesc;
 }
 #endif
 
-USBD_DescriptorsTypeDef HS_Desc =
+USBD_DescriptorsTypeDef usbd_desc =
 {
-  .GetDeviceDescriptor = USBD_HS_DeviceDescriptor,
-  .GetLangIDStrDescriptor = USBD_HS_LangIDStrDescriptor,
-  .GetManufacturerStrDescriptor = USBD_HS_ManufacturerStrDescriptor,
-  .GetProductStrDescriptor = USBD_HS_ProductStrDescriptor,
+  .GetDeviceDescriptor = USBD_DeviceDescriptor,
+  .GetLangIDStrDescriptor = USBD_LangIDStrDescriptor,
+  .GetManufacturerStrDescriptor = USBD_ManufacturerStrDescriptor,
+  .GetProductStrDescriptor = USBD_ProductStrDescriptor,
   .GetSerialStrDescriptor = 0,
-  .GetConfigurationStrDescriptor = USBD_HS_ConfigStrDescriptor,
-  .GetInterfaceStrDescriptor = USBD_HS_InterfaceStrDescriptor,
+  .GetConfigurationStrDescriptor = USBD_ConfigStrDescriptor,
+  .GetInterfaceStrDescriptor = USBD_InterfaceStrDescriptor,
 #if (USBD_CLASS_USER_STRING_DESC == 1)
-  .GetUserStrDescriptor = USBD_HS_UserStrDescriptor,
+  .GetUserStrDescriptor = USBD_UserStrDescriptor,
 #endif
 #if (USBD_LPM_ENABLED == 1)
-  USBD_HS_USR_BOSDescriptor,
+  USBD_USR_BOSDescriptor,
 #endif
 };

@@ -2,6 +2,7 @@
 #include "io_macro.h"
 #include "pcanpro_timestamp.h"
 #include "pcanpro_led.h"
+#include "pcanpro_variant.h"
 
 static struct
 {
@@ -13,24 +14,39 @@ static struct
 }
 led_mode_array[LED_TOTAL] = { 0 };
 
-
-#define IO_LED_STAT C, 10, MODE_OUTPUT_PP, NOPULL, SPEED_FREQ_MEDIUM, NOAF
-#define IO_LED_TX0 A, 2, MODE_OUTPUT_PP, NOPULL, SPEED_FREQ_MEDIUM, NOAF
-#define IO_LED_RX0 A, 3, MODE_OUTPUT_PP, NOPULL, SPEED_FREQ_MEDIUM, NOAF
-#define IO_LED_TX1 C, 6, MODE_OUTPUT_PP, NOPULL, SPEED_FREQ_MEDIUM, NOAF
-#define IO_LED_RX1 C, 7, MODE_OUTPUT_PP, NOPULL, SPEED_FREQ_MEDIUM, NOAF
-
 void pcan_led_init( void )
 {
-  PORT_ENABLE_CLOCK( PIN_PORT( IO_LED_TX0 ), PIN_PORT( IO_LED_RX0 ) );
-  PORT_ENABLE_CLOCK( PIN_PORT( IO_LED_TX1 ), PIN_PORT( IO_LED_RX1 ) );
+#ifdef IO_LED_STAT
   PORT_ENABLE_CLOCK( PIN_PORT( IO_LED_STAT ), PIN_PORT( IO_LED_STAT ) );
+#endif
+#ifdef IO_LED_TX0
+  PORT_ENABLE_CLOCK( PIN_PORT( IO_LED_TX0 ), PIN_PORT( IO_LED_TX0 ) );
+#endif
+#ifdef IO_LED_TX1
+  PORT_ENABLE_CLOCK( PIN_PORT( IO_LED_TX1 ), PIN_PORT( IO_LED_TX1 ) );
+#endif
+#ifdef IO_LED_RX0
+  PORT_ENABLE_CLOCK( PIN_PORT( IO_LED_RX0 ), PIN_PORT( IO_LED_RX0 ) );
+#endif
+#ifdef IO_LED_RX1
+  PORT_ENABLE_CLOCK( PIN_PORT( IO_LED_RX1 ), PIN_PORT( IO_LED_RX1 ) );
+#endif
   
+#ifdef IO_LED_STAT
   PIN_INIT( IO_LED_STAT );
+#endif
+#ifdef IO_LED_TX0
   PIN_INIT( IO_LED_TX0 );
+#endif
+#ifdef IO_LED_RX0
   PIN_INIT( IO_LED_RX0 );
+#endif
+#ifdef IO_LED_TX1
   PIN_INIT( IO_LED_TX1 );
+#endif
+#ifdef IO_LED_RX1
   PIN_INIT( IO_LED_RX1 );
+#endif
 }
 
 void pcan_led_set_mode( int led, int mode, uint32_t arg )
@@ -63,34 +79,44 @@ static void _led_update_state( int led, uint8_t state )
   switch( led )
   {
     case LED_STAT:
+#ifdef IO_LED_STAT
       if( state )
         PIN_HI( IO_LED_STAT );
       else
         PIN_LOW( IO_LED_STAT );
+#endif
     break;
     case LED_CH0_TX:
+#ifdef IO_LED_TX0
       if( state )
         PIN_HI( IO_LED_TX0 );
       else
         PIN_LOW( IO_LED_TX0 );
+#endif
     break;
     case LED_CH0_RX:
+#ifdef IO_LED_RX0
       if( state )
         PIN_HI( IO_LED_RX0 );
       else
         PIN_LOW( IO_LED_RX0 );
+#endif
     break;
     case LED_CH1_TX:
+#ifdef IO_LED_TX1
       if( state )
         PIN_HI( IO_LED_TX1 );
       else
         PIN_LOW( IO_LED_TX1 );
+#endif
     break;
     case LED_CH1_RX:
+#ifdef IO_LED_RX1
       if( state )
         PIN_HI( IO_LED_RX1 );
       else
         PIN_LOW( IO_LED_RX1 );
+#endif
     break;
   }
 }

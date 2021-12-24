@@ -45,7 +45,13 @@ void pcan_clock_config( void )
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+#if (HSE_VALUE == 8000000 )
   RCC_OscInitStruct.PLL.PLLM = 8;
+#elif (HSE_VALUE == 25000000 )
+  RCC_OscInitStruct.PLL.PLLM = 25;
+#else
+  #error Invalid HSE_VALUE
+#endif
   RCC_OscInitStruct.PLL.PLLN = 192;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;

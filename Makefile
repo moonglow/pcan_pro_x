@@ -13,9 +13,11 @@
 ######################################
 # target
 ######################################
-FW_VER = $(shell date +'%Y_%m_%d' )
-TARGET = pcan_$(BOARD)_hw_$(FW_VER)
-
+FW_VER = $(shell date +'%Y%m%d' )
+TARGET = $(BOARD)_$(FW_VER)_$(TARGET_VARIANT)_$(TARGET_CRYSTAL)MHz_USB$(TARGET_USB_ID)
+TARGET_CRYSTAL ?= 8
+TARGET_USB_ID	?= HS
+TARGET_VARIANT ?= DEVEBOX32F4
 #######################################
 # paths
 #######################################
@@ -128,7 +130,8 @@ C_INCLUDES =  \
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -pedantic -fdata-sections -ffunction-sections
 
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -std=c11 -Wall -pedantic -fdata-sections -ffunction-sections $(BOARD_FLAGS)
+CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -std=c11 -Wall -pedantic -fdata-sections -ffunction-sections $(BOARD_FLAGS)\
+-DHSE_VALUE=$(TARGET_CRYSTAL)000000 -DUSB_MODULE_ID=DEVICE_$(TARGET_USB_ID) -D$(TARGET_VARIANT)
 
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2

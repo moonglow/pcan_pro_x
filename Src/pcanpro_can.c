@@ -2,12 +2,7 @@
 #include "io_macro.h"
 #include "pcanpro_timestamp.h"
 #include "pcanpro_can.h"
-
-#define CAN1_RX  B, 8, MODE_AF_PP, NOPULL, SPEED_FREQ_VERY_HIGH, AF9_CAN1
-#define CAN1_TX  B, 9, MODE_AF_PP, NOPULL, SPEED_FREQ_VERY_HIGH, AF9_CAN1
-
-#define CAN2_RX  B, 5, MODE_AF_PP, NOPULL, SPEED_FREQ_VERY_HIGH, AF9_CAN2
-#define CAN2_TX  B, 6, MODE_AF_PP, NOPULL, SPEED_FREQ_VERY_HIGH, AF9_CAN2
+#include "pcanpro_variant.h"
 
 static CAN_HandleTypeDef hcan[CAN_BUS_TOTAL] = 
 { 
@@ -36,9 +31,17 @@ static struct t_can_dev
   void (*err_handler)( int bus, uint32_t esr );
 }
 can_dev_array[CAN_BUS_TOTAL] = 
-{       
+{
+#ifdef CAN1_RX
   [CAN_BUS_1] = { .dev = &hcan[CAN_BUS_1] },
+#else
+  [CAN_BUS_1] = { .dev = 0 },
+#endif
+#ifdef CAN2_RX
   [CAN_BUS_2] = { .dev = &hcan[CAN_BUS_2] },
+#else
+  [CAN_BUS_2] = { .dev = 0 },
+#endif
 };
 
 #define INTERNAL_CAN_IT_FLAGS          (  CAN_IT_TX_MAILBOX_EMPTY |\
@@ -67,6 +70,9 @@ int pcan_can_set_filter_mask( int bus, int num, int format, uint32_t id, uint32_
 {
   CAN_FilterTypeDef filter = { 0 };
   CAN_HandleTypeDef *p_can = can_dev_array[bus].dev;
+
+  if( !p_can )
+    return 0;
   
   if( num >= CAN_INT_FILTER_MAX )
     return -1;
@@ -115,6 +121,9 @@ int pcan_can_filter_init_stdid_list( int bus, const uint16_t *id_list, int id_le
 {
   CAN_FilterTypeDef filter = { 0 };
   CAN_HandleTypeDef *p_can = can_dev_array[bus].dev;
+
+  if( !p_can )
+    return 0;
  
   int i, offset;
 
@@ -194,6 +203,9 @@ static void pcan_can_flush_tx( int bus )
   /* empty fifo */
   if( p_dev->tx_head == p_dev->tx_tail )
     return;
+
+  if( !p_dev->dev )
+    return;
   
   p_msg = &p_dev->tx_fifo[p_dev->tx_tail];
   if( _can_send( p_dev->dev, p_msg ) < 0 )
@@ -211,6 +223,9 @@ static void pcan_can_flush_tx( int bus )
 int pcan_can_write( int bus, struct t_can_msg *p_msg )
 {
   struct t_can_dev *p_dev = &can_dev_array[bus];
+
+  if( !p_dev )
+    return 0;
 
   if( !p_msg )
     return 0;
@@ -311,6 +326,9 @@ int pcan_can_init_ex( int bus, uint32_t bitrate )
   uint32_t brp;
   uint32_t tseg1, tseg2, sjw;
 
+  if( !p_can )
+    return 0;
+
   p_can->Init.Mode = CAN_MODE_NORMAL;//CAN_MODE_NORMAL;// CAN_MODE_LOOPBACK;
     
   p_can->Init.TimeTriggeredMode = DISABLE;
@@ -349,6 +367,9 @@ void pcan_can_set_silent( int bus, uint8_t silent_mode )
 {
   CAN_HandleTypeDef *p_can = can_dev_array[bus].dev;
 
+  if( !p_can )
+    return;
+
   p_can->Init.Mode = silent_mode ? CAN_MODE_SILENT: CAN_MODE_NORMAL;
   if( HAL_CAN_Init( p_can ) != HAL_OK )
   {
@@ -366,6 +387,9 @@ void pcan_can_set_iso_mode( int bus, uint8_t iso_mode )
 void pcan_can_set_loopback( int bus, uint8_t loopback )
 {
   CAN_HandleTypeDef *p_can = can_dev_array[bus].dev;
+
+  if( !p_can )
+    return;
   
   p_can->Init.Mode = loopback ? CAN_MODE_LOOPBACK: CAN_MODE_NORMAL;
   if( HAL_CAN_Init( p_can ) != HAL_OK )
@@ -377,6 +401,9 @@ void pcan_can_set_loopback( int bus, uint8_t loopback )
 void pcan_can_set_bus_active( int bus, uint16_t mode )
 {
   CAN_HandleTypeDef *p_can = can_dev_array[bus].dev;
+
+  if( !p_can )
+    return;
 
   if( mode )
   {
@@ -396,6 +423,9 @@ void pcan_can_set_bitrate( int bus, uint32_t bitrate, int is_data_bitrate )
   CAN_HandleTypeDef *p_can = can_dev_array[bus].dev;
   uint32_t brp;
   uint32_t tseg1, tseg2, sjw;
+
+  if( !p_can )
+    return;
 
   _get_precalculated_bitrate( bitrate, &brp, &tseg1, &tseg2, &sjw );
 
@@ -444,6 +474,9 @@ void pcan_can_set_bitrate_ex( int bus, uint16_t brp, uint8_t tseg1, uint8_t tseg
     tseg2 = 8;
 
   CAN_HandleTypeDef *p_can = can_dev_array[bus].dev;
+
+  if( !p_can )
+    return;
 
   p_can->Init.Prescaler = brp;
 
@@ -502,6 +535,8 @@ void pcan_can_poll( void )
       if( !can_dev_array[i].err_handler )
         continue;
       CAN_HandleTypeDef *pcan = can_dev_array[i].dev;
+      if( !pcan )
+        continue;
       if( can_dev_array[i].esr_reg != pcan->Instance->ESR )
       {
         can_dev_array[i].esr_reg = pcan->Instance->ESR;
@@ -575,10 +610,12 @@ void HAL_CAN_MspInit( CAN_HandleTypeDef *hcan )
       __HAL_RCC_CAN1_CLK_ENABLE();
     }
 
+#ifdef CAN1_RX
     PORT_ENABLE_CLOCK( PIN_PORT( CAN1_RX ), PIN_PORT( CAN1_TX ) );
 
     PIN_INIT( CAN1_RX );
     PIN_INIT( CAN1_TX );
+#endif
     
 #if ( CAN_WITHOUT_ISR == 0 ) 
     HAL_NVIC_SetPriority( CAN1_TX_IRQn, 6, 0 );
@@ -605,11 +642,13 @@ void HAL_CAN_MspInit( CAN_HandleTypeDef *hcan )
       __HAL_RCC_CAN2_CLK_ENABLE();
     }
 
+#ifdef CAN2_RX
     PORT_ENABLE_CLOCK( PIN_PORT( CAN2_RX ), PIN_PORT( CAN2_TX ) );
 
     PIN_INIT( CAN2_RX );
     PIN_INIT( CAN2_TX );
-    
+#endif
+
 #if ( CAN_WITHOUT_ISR == 0 ) 
     HAL_NVIC_SetPriority( CAN2_TX_IRQn, 6, 0 );
     HAL_NVIC_EnableIRQ( CAN2_TX_IRQn );
@@ -636,8 +675,10 @@ void HAL_CAN_MspDeInit( CAN_HandleTypeDef *hcan )
       __HAL_RCC_CAN1_CLK_DISABLE();
     }
   
+#ifdef CAN1_RX
     PIN_DEINIT( CAN1_RX );
     PIN_DEINIT( CAN1_TX );
+#endif
     
     HAL_NVIC_DisableIRQ( CAN1_TX_IRQn );
     HAL_NVIC_DisableIRQ( CAN1_RX0_IRQn );
@@ -647,9 +688,11 @@ void HAL_CAN_MspDeInit( CAN_HandleTypeDef *hcan )
   else if( hcan->Instance == CAN2 )
   {
     __HAL_RCC_CAN2_CLK_DISABLE();
-  
+
+#ifdef CAN2_RX 
     PIN_DEINIT( CAN2_RX );
     PIN_DEINIT( CAN2_TX );
+#endif
     
     HAL_NVIC_DisableIRQ( CAN2_TX_IRQn );
     HAL_NVIC_DisableIRQ( CAN2_RX0_IRQn );
