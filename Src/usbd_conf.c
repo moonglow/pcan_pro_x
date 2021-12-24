@@ -223,12 +223,12 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
     Error_Handler( );
   }
   
-  HAL_PCDEx_SetRxFiFo( &hpcd_usb, ((256)/4)+1 );
+  HAL_PCDEx_SetRxFiFo( &hpcd_usb, ((512)/4)+1 );
   
-  HAL_PCDEx_SetTxFiFo( &hpcd_usb, 0, (128/4)+1 );
-  HAL_PCDEx_SetTxFiFo( &hpcd_usb, 1, (128/4)+1 );
-  HAL_PCDEx_SetTxFiFo( &hpcd_usb, 2, (128/4)+1 );
-  HAL_PCDEx_SetTxFiFo( &hpcd_usb, 3, (128/4)+1 );
+  HAL_PCDEx_SetTxFiFo( &hpcd_usb, 0, (64/4)+1 );
+  HAL_PCDEx_SetTxFiFo( &hpcd_usb, 1, (64/4)+1 );
+  HAL_PCDEx_SetTxFiFo( &hpcd_usb, 2, (64/4)+1 );
+  HAL_PCDEx_SetTxFiFo( &hpcd_usb, 3, (64/4)+1 );
 
   return USBD_OK;
 }

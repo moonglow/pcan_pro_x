@@ -16,6 +16,8 @@ led_mode_array[LED_TOTAL] = { 0 };
 
 void pcan_led_init( void )
 {
+  IO_HW_INIT();
+
 #ifdef IO_LED_STAT
   PORT_ENABLE_CLOCK( PIN_PORT( IO_LED_STAT ), PIN_PORT( IO_LED_STAT ) );
 #endif
@@ -33,18 +35,23 @@ void pcan_led_init( void )
 #endif
   
 #ifdef IO_LED_STAT
+  IO_LED_LOW( IO_LED_STAT );
   PIN_INIT( IO_LED_STAT );
 #endif
 #ifdef IO_LED_TX0
+  IO_LED_LOW( IO_LED_TX0 );
   PIN_INIT( IO_LED_TX0 );
 #endif
 #ifdef IO_LED_RX0
+  IO_LED_LOW( IO_LED_RX0 );
   PIN_INIT( IO_LED_RX0 );
 #endif
 #ifdef IO_LED_TX1
+  IO_LED_LOW( IO_LED_TX1 );
   PIN_INIT( IO_LED_TX1 );
 #endif
 #ifdef IO_LED_RX1
+  IO_LED_LOW( IO_LED_RX1 );
   PIN_INIT( IO_LED_RX1 );
 #endif
 }
@@ -81,41 +88,41 @@ static void _led_update_state( int led, uint8_t state )
     case LED_STAT:
 #ifdef IO_LED_STAT
       if( state )
-        PIN_HI( IO_LED_STAT );
+        IO_LED_HI( IO_LED_STAT );
       else
-        PIN_LOW( IO_LED_STAT );
+        IO_LED_LOW( IO_LED_STAT );
 #endif
     break;
     case LED_CH0_TX:
 #ifdef IO_LED_TX0
       if( state )
-        PIN_HI( IO_LED_TX0 );
+        IO_LED_HI( IO_LED_TX0 );
       else
-        PIN_LOW( IO_LED_TX0 );
+        IO_LED_LOW( IO_LED_TX0 );
 #endif
     break;
     case LED_CH0_RX:
 #ifdef IO_LED_RX0
       if( state )
-        PIN_HI( IO_LED_RX0 );
+        IO_LED_HI( IO_LED_RX0 );
       else
-        PIN_LOW( IO_LED_RX0 );
+        IO_LED_LOW( IO_LED_RX0 );
 #endif
     break;
     case LED_CH1_TX:
 #ifdef IO_LED_TX1
       if( state )
-        PIN_HI( IO_LED_TX1 );
+        IO_LED_HI( IO_LED_TX1 );
       else
-        PIN_LOW( IO_LED_TX1 );
+        IO_LED_LOW( IO_LED_TX1 );
 #endif
     break;
     case LED_CH1_RX:
 #ifdef IO_LED_RX1
       if( state )
-        PIN_HI( IO_LED_RX1 );
+        IO_LED_HI( IO_LED_RX1 );
       else
-        PIN_LOW( IO_LED_RX1 );
+        IO_LED_LOW( IO_LED_RX1 );
 #endif
     break;
   }
