@@ -1,7 +1,7 @@
 # PEAK PCAN PRO/PRO FD firmware for STM32F4 based boards
 
 Target hardware:
-* Any STM32F407/405 based boards with 8MHz oscillator
+* Any STM32F407/405/417/415 based boards with 8/25MHz oscillator
 
 Pinout:
 |PIN/PINS|DESCRIPTION|
