@@ -1,0 +1,8 @@
+/build*
+*.o
+*.d
+*.zip
+*.html
+*.htm
+*.ioc
+

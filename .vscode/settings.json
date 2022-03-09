@@ -1,0 +1,10 @@
+{
+  "files.associations": {
+    "pcanpro_timestamp.h": "c",
+    "stdint.h": "c",
+    "io_macro.h": "c",
+    "pcanpro_varian.h": "c",
+    "pcanpro_can.h": "c",
+    "pcanpro_variant.h": "c"
+  }
+}
