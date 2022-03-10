@@ -1,4 +1,6 @@
-# XPCAN PRO/PRO FD firmware for STM32F4 based boards
+# !ACHTUNG! READ FIRST [COPYRIGHT ISSUE](https://github.com/moonglow/pcan_pro_x/issues/16)
+
+## XPCAN PRO/PRO FD firmware for STM32F4 based boards
 
 Target hardware:
 * Any STM32F407/405/417/415 based boards with 8/25MHz oscillator
